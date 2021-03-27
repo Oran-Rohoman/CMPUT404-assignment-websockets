@@ -47,14 +47,57 @@ world = {};
 //XXX: TODO Make this prettier!
 function drawCircle(context,entity) {
     with(context) {
-        beginPath();                
+        beginPath();              
         lineWidth = 3;
         var x = entity["x"];
         var y = entity["y"];
         //moveTo(x,y);
         fillStyle = entity["colour"];
         strokeStyle = fillStyle;
-        arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);  
+        //arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);  
+        arc(x,y,50,0,Math.PI*2,true);
+        stroke();                                
+    }
+}
+function drawsmile(context,entity) {
+    with(context) {
+        beginPath();              
+        lineWidth = 3;
+        var x = entity["x"];
+        var y = entity["y"];
+        //moveTo(x,y);
+        fillStyle = entity["colour"];
+        strokeStyle = fillStyle;
+        //arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);  
+        moveTo(x+30,y)
+        beginPath()
+        arc(x,y,30,0,Math.PI,false);
+        stroke();                                
+    }
+}
+//XXX: TODO Make this prettier!
+function draweye(context,entity) {
+    with(context) {
+        beginPath();              
+        lineWidth = 3;
+        var x = entity["x"];
+        var y = entity["y"];
+        //moveTo(x,y);
+        fillStyle = entity["colour"];
+        strokeStyle = fillStyle;
+        //arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);  
+        moveTo(x-20,x-25);
+        beginPath();
+        arc((x -25) ,(y -25) , 4, 0, Math.PI*2, true);
+        closePath();
+        fill();
+
+        
+        moveTo(x-20,x-25);
+        beginPath();
+        arc((x +25) ,(y -25) , 4, 0, Math.PI*2, true);
+        closePath();
+        fill();
         stroke();                                
     }
 }
@@ -83,7 +126,9 @@ function renderFrame() {
     clearFrame();
     for (var key in world) {
         var entity = world[key];
+        draweye(context,prepEntity(entity));
         drawCircle(context,prepEntity(entity));
+        drawsmile(context,prepEntity(entity));
     }
 }
 
@@ -124,7 +169,11 @@ function getPosition(e) {
 function addEntity(entity, data) {
     world[entity] = data;
     drawNextFrame(); // (but should we?)
-    //XXX: Send a XHTML Request that updates the entity you just modified!
+
+    var temp = {};
+    temp[entity] = data;
+    console.log(temp);
+    socket.send(JSON.stringify(temp));
 }
 var counter = 0;
 function addEntityWithoutName(data) {
@@ -250,7 +299,8 @@ function update() {
 
 
 function wsSetup() {
-    var url = "ws://"+host+"/subscribe";   
+    var url = "ws://"+host+"/subscribe";
+    console.log(url);   
     socket = new WebSocket(url);
     socket.onopen = function() {
         //XXX: TODO What are you going to do here?
@@ -261,6 +311,13 @@ function wsSetup() {
     socket.onmessage = function(msg) {  
         try {
             debug("WebSocket Recv:" + msg.data);
+            var data = JSON.parse(msg.data);
+            for(let i in data){
+                world[i] = data[i];
+                drawNextFrame();
+                drawFrame();
+            }
+            
             //XXX: TODO What are you going to do here?            
         } catch (e) {
             alert("socket on message: " + e);
