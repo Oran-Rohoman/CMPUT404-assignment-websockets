@@ -59,3 +59,12 @@ Contributors
 * Mark Galloway
 * Abram Hindle
 * Cole Mackenzie
+
+Sources and Considerations
+==========================
+* CODE USED IN SOCKET.PY FROM U OF A GITHUB
+* #https://github.com/uofa-cmput404/cmput404-slides/blob/master/examples/WebSocketsExamples/broadcaster.py
+
+* I used os.system("gunicorn -k flask_sockets.worker sockets:app") in __main__ as i was getting errors
+
+
